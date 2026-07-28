@@ -115,3 +115,5 @@ automatically save/sync hoga.
 - Local mein test karna ho to: `npm install` phir `npm run dev`
   (Node.js installed hona chahiye), aur ek `.env` file banao
   `.env.example` ki tarah apni Supabase values ke saath.
+
+  
