@@ -100,10 +100,10 @@ const DEFAULT_KEYDATES = {
 
 const todayStr = () => {
   const d = new Date();
-  const y = d.getFullyear();
+  const y = d.getFullYear();
   const m = String(d.getMonth() + 1).padStart(2, "0");
   const day = String(d.getDate()).padStart(2, "0");
-  return '${y}-${m}-${day}';
+  return `$ {y}-$ {m}-$ {day}`;
 };
 
 function toDate(s) {
