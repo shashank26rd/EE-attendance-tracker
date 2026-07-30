@@ -66,7 +66,7 @@ const YEAR_TEMPLATES = {
     ],
     timetable: {
       Mon: ["startup","proj1", "proj1"],
-      Tue: ["peres", "psp", "proj prog" "internship"],
+      Tue: ["peres", "psp", "proj prog","internship"],
       Wed: ["ed", "ed", "proj1", "psplab"],
       Thu: ["ed", "psp", "proj1", "peres", "psplab"],
       Fri: ["psp", "peres", "proj prog", "peres", "psplab"],
