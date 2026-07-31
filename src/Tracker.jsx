@@ -117,7 +117,7 @@ function fmtShort(s) {
   return toDate(s).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
 }
 function addDays(s, n) {
-  const [y, m, d] = s.split("-").map(number);
+  const [y, m, d] = s.split("-").map(Number);
   const dt = new Date(Date.UTC(y, m-1, d));
   dt.setUTCDate(dt.getUTCDate() + n);
   return dt.toISOString().slice(0, 10);
