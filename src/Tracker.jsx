@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { Zap, Calendar, Settings2, CalendarOff, Gauge, Plus, Trash2, Check, X, ChevronLeft, ChevronRight, AlertTriangle, CircleCheck } from "lucide-react";
+
+  
+    import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Zap, Calendar, Settings2, CalendarOff, Gauge, Plus, Trash2, Check, X, Minus, ChevronLeft, ChevronRight, AlertTriangle, CircleCheck } from "lucide-react";
 
 // ---------- constants ----------
 const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
@@ -65,11 +67,11 @@ const YEAR_TEMPLATES = {
       { id: "psplab", name: "PSP LAB", full: "Power Systems Protection Lab", color: "#6fae5c" },
     ],
     timetable: {
-      Mon: ["startup","proj1", "proj1"],
-      Tue: ["peres", "psp", "proj prog","internship"],
-      Wed: ["ed", "ed", "proj1", "psplab"],
-      Thu: ["ed", "psp", "proj1", "peres", "psplab"],
-      Fri: ["psp", "peres", "proj prog", "peres", "psplab"],
+      Mon: ["proj", "proj"],
+      Tue: ["peres", "psp", "proj"],
+      Wed: ["ed", "ed", "proj", "psplab"],
+      Thu: ["ed", "psp", "proj", "peres", "psplab"],
+      Fri: ["psp", "peres", "proj", "peres", "psplab"],
       Sat: [],
     },
   },
@@ -92,19 +94,13 @@ const DEFAULT_HOLIDAYS = [
 ];
 
 const DEFAULT_KEYDATES = {
-  semStart: "2026-07-21",
+  semStart: "2026-07-15",
   ct1: "2026-10-05",
   ct2: "2026-11-16",
   semEnd: "2026-12-15",
 };
 
-const todayStr = () => {
-  const d = new Date();
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  return `$ {y}-$ {m}-$ {day}`;
-};
+const todayStr = () => new Date().toISOString().slice(0, 10);
 
 function toDate(s) {
   const [y, m, d] = s.split("-").map(Number);
@@ -117,10 +113,9 @@ function fmtShort(s) {
   return toDate(s).toLocaleDateString("en-IN", { day: "2-digit", month: "short" });
 }
 function addDays(s, n) {
-  const [y, m, d] = s.split("-").map(Number);
-  const dt = new Date(Date.UTC(y, m-1, d));
-  dt.setUTCDate(dt.getUTCDate() + n);
-  return dt.toISOString().slice(0, 10);
+  const d = toDate(s);
+  d.setDate(d.getDate() + n);
+  return d.toISOString().slice(0, 10);
 }
 function dayOfWeek(s) {
   return DAYS[toDate(s).getDay()];
@@ -278,8 +273,10 @@ export default function AttendanceTracker({ uid, userEmail, onSignOut }) {
     setAttendance((a) => {
       const dn = dayOfWeek(date);
       const slotCount = (timetable[dn] || []).length;
-      const arr = a[date] ? [...a[date]] : Array(slotCount).fill(null);
-      arr[idx] = status;
+      const prev = a[date] || Array(slotCount).fill(null);
+      // Toggle off if the same status is tapped again; otherwise set it.
+      const nextVal = prev[idx] === status ? null : status;
+      const arr = prev.map((v, i) => (i === idx ? nextVal : v));
       return { ...a, [date]: arr };
     });
   }
@@ -571,7 +568,7 @@ function MarkAttendance({ markDate, setMarkDate, isHoliday, isSunday, slotsToday
                 <div style={{ display: "flex", gap: 6 }}>
                   <PillBtn active={status === "present"} color="#7fc98f" onClick={() => setSlotStatus(markDate, idx, "present")} icon={<Check size={14} />} label="Present" />
                   <PillBtn active={status === "absent"} color="#e07a5f" onClick={() => setSlotStatus(markDate, idx, "absent")} icon={<X size={14} />} label="Absent" />
-                  <PillBtn active={status === "cancelled"} color="#8b95a1" onClick={() => setSlotStatus(markDate, idx, "cancelled")} icon={null} label="Off" />
+                  <PillBtn active={status === "cancelled"} color="#8b95a1" onClick={() => setSlotStatus(markDate, idx, "cancelled")} icon={<Minus size={14} />} label="Off" />
                 </div>
               </div>
             );
@@ -583,21 +580,28 @@ function MarkAttendance({ markDate, setMarkDate, isHoliday, isSunday, slotsToday
 }
 
 function PillBtn({ active, color, onClick, icon, label }) {
+  const [pressed, setPressed] = useState(false);
   return (
     <button
-      onClick={onClick}
+      onClick={() => {
+        setPressed(true);
+        setTimeout(() => setPressed(false), 150);
+        onClick();
+      }}
       style={{
         display: "flex",
         alignItems: "center",
         gap: 4,
-        padding: "6px 9px",
+        padding: "6px 10px",
         borderRadius: 8,
-        border: `1px solid ${active ? color : "#2c3540"}`,
-        background: active ? color + "22" : "transparent",
-        color: active ? color : "#8b95a1",
+        border: `1.5px solid ${active ? color : "#2c3540"}`,
+        background: active ? color : "transparent",
+        color: active ? "#161b21" : "#8b95a1",
         fontSize: 11.5,
-        fontWeight: 600,
+        fontWeight: 700,
         cursor: "pointer",
+        transform: pressed ? "scale(0.9)" : "scale(1)",
+        transition: "transform 100ms ease, background 100ms ease, border-color 100ms ease, color 100ms ease",
       }}
     >
       {icon}
